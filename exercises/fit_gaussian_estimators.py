@@ -62,11 +62,11 @@ def test_multivariate_gaussian():
             # find the maximum log-likelihood for Q6
             if value > max_val:
                 max_val, best_x, best_y = value, f1, f3
-            inner_list.append(value)
-        heatmap_list.append(inner_list[:])
+            heatmap_list.append((f1, f3, value))
     # TODO: add descriptions for axis
-    go.Figure(data=go.Heatmap(x=func, y=func, z=heatmap_list), layout=go.Layout(title='Heatmap of log-likelihoods '
-                                                                                      'Between -10 to 10')).show()
+    df = pd.DataFrame(heatmap_list, columns=['f1', 'f3', 'log-likelihood'])
+    plotly.express.density_heatmap(df, x='f3', y='f1', z='log-likelihood',
+                                   title='Heatmap of log-likelihoods Between -10 to 10', histfunc='avg').show()
 
     # Question 6 - Maximum likelihood
     print("The Max log-likelihood is mu: [{},0,{},0], and the value is {}".format(best_x, best_y, max_val))
