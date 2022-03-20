@@ -56,8 +56,10 @@ class UnivariateGaussian:
         self.mu_ = np.mean(X)
 
         # calculate var:
-        self.var_ = np.sum((X - self.mu_) ** 2 / (X.size - 1))
-
+        if not self.biased_:
+            self.var_ = np.sum((X - self.mu_) ** 2 / (X.size - 1))
+        else:
+            self.var_ = np.sum((X - self.mu_) ** 2 / X.size)
         self.fitted_ = True
         return self
 
