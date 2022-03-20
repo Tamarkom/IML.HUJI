@@ -63,7 +63,7 @@ def test_multivariate_gaussian():
             if value > max_val:
                 max_val, best_x, best_y = value, f1, f3
             heatmap_list.append((f1, f3, value))
-    # TODO: add descriptions for axis
+
     df = pd.DataFrame(heatmap_list, columns=['f1', 'f3', 'log-likelihood'])
     plotly.express.density_heatmap(df, x='f3', y='f1', z='log-likelihood',
                                    title='Heatmap of log-likelihoods Between -10 to 10', histfunc='avg').show()
