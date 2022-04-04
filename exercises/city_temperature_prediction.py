@@ -25,6 +25,7 @@ def load_data(filename: str) -> pd.DataFrame:
     df = pd.read_csv(filename, parse_dates=['Date']).dropna()
     df = df[df['Temp'] > -70]
     df['DayOfYear'] = df['Date'].dt.dayofyear
+    df['Year'] = df['Year'].astype(str)
     return df
 
 
