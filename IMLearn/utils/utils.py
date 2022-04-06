@@ -33,11 +33,6 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .2
         Responses of test samples
 
     """
-    # n = int(np.ceil(X.size * train_proportion))
-    # train_X = X.iloc[:n]
-    # train_y = y.iloc[:n]
-    # test_X = X.iloc[-n:]
-    # test_y = y.iloc[-n:]
     train_X = X.sample(frac=train_proportion)
     train_y = y.loc[train_X.index]
     test_X = X.drop(train_X.index)
