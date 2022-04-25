@@ -1,12 +1,14 @@
 from __future__ import annotations
 from typing import Callable
 from typing import NoReturn
+
+import IMLearn.metrics.loss_functions
 from ...base import BaseEstimator
 import numpy as np
 
 
 def default_callback(fit: Perceptron, x: np.ndarray, y: int):
-    pass
+    fit.loss_evaluation.append(fit.loss(x, y))
 
 
 class Perceptron(BaseEstimator):
@@ -71,6 +73,7 @@ class Perceptron(BaseEstimator):
         self.include_intercept_ = include_intercept
         self.max_iter_ = max_iter
         self.callback_ = callback
+        self.loss_evaluation = []
         self.coefs_ = None
 
     def _fit(self, X: np.ndarray, y: np.ndarray) -> NoReturn:
@@ -90,7 +93,18 @@ class Perceptron(BaseEstimator):
         -----
         Fits model with or without an intercept depending on value of `self.fit_intercept_`
         """
-        raise NotImplementedError()
+        if self.include_intercept_:
+            X = np.concatenate((np.ones((X.shape[0], 1)), X), axis=1)
+        self.coefs_ = np.zeros(X.shape[1])
+        self.fitted_ = True
+        for _ in range(self.max_iter_):
+            mult_arr = np.array(y * (X @ self.coefs_))
+            if np.all(mult_arr > 0):
+                break
+            else:
+                index = np.where(mult_arr <= 0)[0][0]
+                self.coefs_ += y[index] * X[index]
+                self.callback_(self, X, y)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -106,7 +120,7 @@ class Perceptron(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        return np.sign(X @ self.coefs_)
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -125,4 +139,4 @@ class Perceptron(BaseEstimator):
         loss : float
             Performance under missclassification loss function
         """
-        raise NotImplementedError()
+        return IMLearn.metrics.loss_functions.misclassification_error(y, self._predict(X))
