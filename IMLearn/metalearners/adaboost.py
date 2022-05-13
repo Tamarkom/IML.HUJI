@@ -55,7 +55,7 @@ class AdaBoost(BaseEstimator):
             predicted_values = model.predict(X)
 
             # compute epsilon_t
-            epsilon_t = np.sum(predicted_values != y)
+            epsilon_t = np.sum(self.D_[predicted_values != y])
 
             # set wt (self.D_)
             w_t = 0.5 * np.log(1/epsilon_t - 1)
@@ -115,7 +115,7 @@ class AdaBoost(BaseEstimator):
         # for every model, predict values and append the result doubled with the weight of the model
         # calculated in fit
         for i in range(T):
-            prediction += self.models_[i].precict * self.weights_[i]
+            prediction += self.models_[i].predict(X) * self.weights_[i]
         return np.sign(prediction)
 
     def partial_loss(self, X: np.ndarray, y: np.ndarray, T: int) -> float:
