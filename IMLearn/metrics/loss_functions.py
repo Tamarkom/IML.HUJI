@@ -36,9 +36,11 @@ def misclassification_error(y_true: np.ndarray, y_pred: np.ndarray, normalize: b
     -------
     Misclassification of given predictions
     """
-    if normalize:
-        return (y_true != y_pred).astype(int).mean()
-    return (y_true != y_pred).astype(int).sum()
+    # if normalize:
+    #     return (y_true != y_pred).astype(int).mean()
+    # return (y_true != y_pred).astype(int).sum()
+    score = np.sum(y_true != y_pred)
+    return score / len(y_true) if normalize else score
 
 
 def accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:
