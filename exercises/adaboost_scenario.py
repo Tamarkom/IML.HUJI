@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple
 from IMLearn.metalearners.adaboost import AdaBoost
-from IMLearn.learners.classifiers import DecisionStump
+from IMLearn.learners.classifiers.decision_stump import DecisionStump
 from utils import *
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -9,21 +9,25 @@ from plotly.subplots import make_subplots
 
 def decision_surface_helper(model: AdaBoost,
                             t, lims: np.array):
-    return decision_surface(lambda x: model.partial_predict(x, t), lims[0],
-                            lims[1], showscale=False)
+    return decision_surface(lambda x: model.partial_predict(x, t),
+                            lims[0], lims[1], showscale=False)
 
 
 def graph_for_surface(x: np.array, y: np.array, symbols: np.array, D=None):
     if D is None:
-        return go.Scatter(x=x[:, 0], y=x[:, 1], mode="markers", showlegend=False,
-                                   marker=dict(color=y.astype(int), symbol=symbols[y.astype(int)],
-                                               colorscale=[custom[0], custom[-1]],
-                                               line=dict(color="black", width=1)))
-    else:
-        return go.Scatter(x=x[:, 0], y=x[:, 1], mode="markers", showlegend=False,
-                          marker=dict(color=y.astype(int), symbol=symbols[y.astype(int)],
-                                      colorscale=[custom[0], custom[-1]],
-                                      line=dict(color="black", width=1), size=D))
+        return go.Scatter(x=x[:, 0], y=x[:, 1], mode="markers",
+                           marker=dict(color=y.astype(int),
+                                       symbol=symbols[y.astype(int)],
+                                       colorscale=[custom[0], custom[-1]],
+                                       line=dict(color='black', width=1)),
+                           showlegend=False)
+    return go.Scatter(x=x[:, 0], y=x[:, 1], mode="markers",
+                      marker=dict(color=y.astype(int),
+                                  symbol=symbols[y.astype(int)],
+                                  colorscale=[custom[0], custom[-1]],
+                                  line=dict(color='black', width=1),
+                                  size=D),
+                      showlegend=False)
 
 
 def generate_data(n: int, noise_ratio: float) -> Tuple[np.ndarray, np.ndarray]:
@@ -87,7 +91,10 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     test_best_loss = np.argmin(test_loss)
     accuracy = 1 - test_loss[test_best_loss]
     fig2 = go.Figure()
-    fig2.add_traces([decision_surface_helper(adaboost, test_best_loss, lims), graph])
+    surface = decision_surface_helper(adaboost, test_best_loss + 1, lims)
+    fig2.add_trace(surface)
+    graph = graph_for_surface(test_X, test_y, symbols)
+    fig2.add_trace(graph)
     fig2.update_layout(title=f"Best Size Loss is {test_best_loss + 1}, the Accuracy is {accuracy}", margin=dict(t=100)) \
         .update_xaxes(visible=False).update_yaxes(visible=False)
     fig2.show()
@@ -95,8 +102,10 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     # Question 4: Decision surface with weighted samples
     D = adaboost.D_ / np.max(adaboost.D_) * 5
     fig3 = go.Figure()
-    fig3.add_traces([decision_surface_helper(adaboost, adaboost.iterations_, lims),
-                     graph_for_surface(test_X, test_y, symbols, D)])
+    surface = decision_surface_helper(adaboost, n_learners, lims)
+    fig3.add_trace(surface)
+    graph = graph_for_surface(train_X, train_y, symbols, D=D)
+    fig3.add_trace(graph)
     fig3.update_layout(title=f"Train Sample Proportional to Size", margin=dict(t=100)) \
         .update_xaxes(visible=False).update_yaxes(visible=False)
     fig3.show()
