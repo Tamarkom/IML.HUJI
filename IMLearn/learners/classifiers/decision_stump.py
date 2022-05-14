@@ -96,7 +96,6 @@ class DecisionStump(BaseEstimator):
         """
         best_thr_err = np.inf
         best_thr = values[0]
-
         for index, value in enumerate(values):
             pred = np.zeros(values.shape[0])
             pred[values >= value] = sign
@@ -105,7 +104,7 @@ class DecisionStump(BaseEstimator):
             if thr_err < best_thr_err:
                 best_thr_err = thr_err
                 best_thr = value
-        # check the max value
+        # check the max and min value
         pred = np.zeros(values.shape[0])
         pred[values >= np.max(values) + 1] = sign
         pred[values < np.max(values) + 1] = -sign
@@ -113,6 +112,13 @@ class DecisionStump(BaseEstimator):
         if thr_err < best_thr_err:
             best_thr_err = thr_err
             best_thr = np.max(values) + 1
+        pred = np.zeros(values.shape[0])
+        pred[values >= np.min(values) - 1] = sign
+        pred[values < np.min(values) - 1] = -sign
+        thr_err = np.sum(np.abs(labels[np.sign(labels) != np.sign(pred)])) / values.shape[0]
+        if thr_err < best_thr_err:
+            best_thr_err = thr_err
+            best_thr = np.min(values) - 1
         return best_thr, best_thr_err
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
