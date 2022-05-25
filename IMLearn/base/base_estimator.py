@@ -149,7 +149,7 @@ class BaseEstimator(ABC):
         loss : float
             Performance under loss function specified for estimator
         """
-        raise NotImplementedError()
+        return self.loss(X, y)
 
     def fit_predict(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """
